@@ -2,14 +2,14 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "@firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBaVLEcTNJ7HrTnYeBXfd0hgmrt2QaffHs",
-  authDomain: "unix-interiors.firebaseapp.com",
-  databaseURL: "https://unix-interiors-default-rtdb.firebaseio.com",
-  projectId: "unix-interiors",
-  storageBucket: "unix-interiors.appspot.com",
-  messagingSenderId: "1026532401201",
-  appId: "1:1026532401201:web:90bb419e9dff1d81ac7510",
-  measurementId: "G-G7FZZE34HQ",
+  apiKey: import.meta.env.VITE_APP_APIKEY,
+  authDomain: import.meta.env.VITE_APP_AUTHDOMAIN,
+  databaseURL: import.meta.env.VITE_APP_DATABASEURL,
+  projectId: import.meta.env.VITE_APP_PROJECTID,
+  storageBucket: import.meta.env.VITE_APP_STORAGEBUCKET,
+  messagingSenderId: import.meta.env.VITE_APP_MESSAGINGSENDERID,
+  appId: import.meta.env.VITE_APP_APPID,
+  measurementId: import.meta.env.VITE_APP_MEASUREMENT,
 };
 
 const app = initializeApp(firebaseConfig);

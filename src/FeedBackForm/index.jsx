@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { map } from "lodash";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import React, { useState } from "react";
+import { collection, addDoc } from "firebase/firestore";
 import {
+  Alert,
   Backdrop,
   CircularProgress,
+  Snackbar,
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
@@ -23,6 +24,7 @@ import {
   theme,
   FormActionContainer,
   ToogleButtonContainer,
+  OverallError,
 } from "./FeedBackForm.style";
 
 function FeedBackForm({ setEndStatus }) {
@@ -36,19 +38,24 @@ function FeedBackForm({ setEndStatus }) {
     experience: "",
     email: "",
   });
+  const [formError, setFormError] = useState({});
   const [sendStatus, setStatus] = useState(false);
+  const [errorAlert, setErrorAlert] = useState({
+    show: false,
+    message: "All field is required !",
+  });
 
-  useEffect(() => {
-    getDocs(feedbackCollectionRef)
-      .then((data) => {
-        console.log("raw", data);
-        console.log(
-          "data",
-          map(data.docs, (doc) => ({ ...doc.data(), id: doc.id }))
-        );
-      })
-      .catch((error) => console.log("error", error));
-  }, []);
+  // useEffect(() => {
+  //   getDocs(feedbackCollectionRef)
+  //     .then((data) => {
+  //       console.log("raw", data);
+  //       console.log(
+  //         "data",
+  //         map(data.docs, (doc) => ({ ...doc.data(), id: doc.id }))
+  //       );
+  //     })
+  //     .catch((error) => console.log("error", error));
+  // }, []);
 
   function handleChange(event) {
     setFormData((data) => ({
@@ -58,114 +65,164 @@ function FeedBackForm({ setEndStatus }) {
   }
 
   function handleSubmit() {
-    setStatus(true);
-    let { nameError, contactError, emailError } = validateFormData(formData);
-    addDoc(feedbackCollectionRef, {
-      ...formData,
-      time: moment().format(),
-    }).then((res) => {
-      setFormData({
-        name: "",
-        contact: "",
-        quality: 0,
-        behaviour: 0,
-        overall: "",
-        experience: "",
-        email: "",
-      });
-      setStatus(false);
-      setEndStatus(true);
-    });
+    if (
+      Object.values(validateFormData(formData)).every(
+        (value) => value === false
+      )
+    ) {
+      setStatus(true);
+      addDoc(feedbackCollectionRef, {
+        ...formData,
+        time: moment().format(),
+      })
+        .then(() => {
+          setFormData({
+            name: "",
+            contact: "",
+            quality: 0,
+            behaviour: 0,
+            overall: "",
+            experience: "",
+            email: "",
+          });
+          setStatus(false);
+          setEndStatus(true);
+        })
+        .catch((err) => {
+          setStatus(false);
+          setErrorAlert({
+            show: true,
+            message: err.message,
+          });
+        });
+    } else {
+      setFormError(validateFormData(formData));
+    }
   }
 
+  const handleAlertClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setErrorAlert({
+      ...errorAlert,
+      show: false,
+    });
+  };
+
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        <section>
-          <TextInput
-            name="name"
-            label={"FullName"}
-            value={formData.name}
-            handleChange={handleChange}
-          />
-          <TextInput
-            name="contact"
-            label={"Contact Number"}
-            value={formData.contact}
-            handleChange={handleChange}
-          />
-        </section>
+    <ThemeProvider theme={theme}>
+      <section>
+        <TextInput
+          name="name"
+          label={"FullName"}
+          value={formData.name}
+          handleChange={handleChange}
+          showError={formError.nameError}
+        />
+        <TextInput
+          name="contact"
+          label={"Contact Number"}
+          value={formData.contact}
+          handleChange={handleChange}
+          showError={formError.contactError}
+        />
+      </section>
 
-        <section>
-          <FeedbackRow
-            name={"quality"}
-            heading={"Quality of Work"}
-            data={formData}
-            setData={setFormData}
-          />
-          <FeedbackRow
-            name={"behaviour"}
-            heading={"Behaviours of Workers"}
-            data={formData}
-            setData={setFormData}
-          />
-          <ToogleButtonContainer>
-            <h3>Did we meet your overall Expectations ?</h3>
-            <ToggleButtonGroup
-              color="primary"
-              value={formData.overall}
-              exclusive
-              onChange={handleChange}
-              fullWidth
-              size={"small"}
-            >
-              <ToggleButton name="overall" value="no">
-                No
-              </ToggleButton>
-              <ToggleButton name="overall" value="yes">
-                Yes
-              </ToggleButton>
-              <ToggleButton name="overall" value="exceeded">
-                Exceeded
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </ToogleButtonContainer>
-        </section>
-
-        <section>
-          <TextInput
-            name={"experience"}
-            label={"How was your Experience"}
-            value={formData.experience}
-            config={{ multiline: true, rows: 5 }}
-            handleChange={handleChange}
-          />
-          <TextInput
-            name={"email"}
-            label={"Email Address"}
-            value={formData.email}
-            handleChange={handleChange}
-          />
-        </section>
-
-        <FormActionContainer>
-          <PoweredBy />
-
-          <LoadingButton
-            variant="contained"
-            endIcon={<SendIcon />}
-            loading={sendStatus}
-            loadingPosition="end"
-            onClick={handleSubmit}
+      <section>
+        <FeedbackRow
+          name={"quality"}
+          heading={"Quality of Work"}
+          data={formData}
+          setData={setFormData}
+          showError={formError.qualityError}
+        />
+        <FeedbackRow
+          name={"behaviour"}
+          heading={"Behaviours of Workers"}
+          data={formData}
+          setData={setFormData}
+          showError={formError.behaviourError}
+        />
+        <ToogleButtonContainer>
+          <h3>Did we meet your overall Expectations ?</h3>
+          <ToggleButtonGroup
+            color="primary"
+            value={formData.overall}
+            exclusive
+            onChange={handleChange}
+            fullWidth
+            size={"small"}
           >
-            Submit
-          </LoadingButton>
-        </FormActionContainer>
-      </ThemeProvider>
-      <Backdrop sx={{ color: "#eceff1", zIndex: 99 }} open={sendStatus}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    </>
+            <ToggleButton name="overall" value="no">
+              No
+            </ToggleButton>
+            <ToggleButton name="overall" value="yes">
+              Yes
+            </ToggleButton>
+            <ToggleButton name="overall" value="exceeded">
+              Exceeded
+            </ToggleButton>
+          </ToggleButtonGroup>
+          <OverallError showError={formError.overallError}>
+            Please select the Option
+          </OverallError>
+        </ToogleButtonContainer>
+      </section>
+
+      <section>
+        <TextInput
+          name={"experience"}
+          label={"How was your Experience"}
+          value={formData.experience}
+          config={{ multiline: true, rows: 5 }}
+          handleChange={handleChange}
+          showError={formError.experienceError}
+        />
+        <TextInput
+          name={"email"}
+          label={"Email Address"}
+          value={formData.email}
+          handleChange={handleChange}
+          showError={formError.emailError}
+        />
+      </section>
+
+      <FormActionContainer>
+        <PoweredBy />
+
+        <LoadingButton
+          variant="contained"
+          endIcon={<SendIcon />}
+          loading={sendStatus}
+          loadingPosition="end"
+          onClick={handleSubmit}
+        >
+          Submit
+        </LoadingButton>
+      </FormActionContainer>
+      {sendStatus && (
+        <Backdrop sx={{ color: "#eceff1", zIndex: 99 }} open={sendStatus}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      )}
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={errorAlert.show}
+        autoHideDuration={4000}
+        onClose={handleAlertClose}
+      >
+        <Alert
+          variant="filled"
+          onClose={handleAlertClose}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {errorAlert.message}
+        </Alert>
+      </Snackbar>
+    </ThemeProvider>
   );
 }
 

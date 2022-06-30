@@ -1,7 +1,8 @@
 import { TextField } from "@mui/material";
+import React from "react";
 import { TextInputWrapper } from "./TextInput.style";
 
-function TextInput({ name, value, label, config, handleChange }) {
+function TextInput({ name, value, label, config, handleChange, showError }) {
   return (
     <TextInputWrapper>
       <TextField
@@ -12,8 +13,9 @@ function TextInput({ name, value, label, config, handleChange }) {
         fullWidth
         color="primary"
         variant="filled"
-        {...config}
+        error={showError}
         onChange={handleChange}
+        {...config}
       />
     </TextInputWrapper>
   );

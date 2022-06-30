@@ -1,3 +1,4 @@
+import React from "react";
 import Alogo from "@unix-interiors/assets/A-logo.jpg";
 import { PoweredByWrapper } from "./PoweredBy.style";
 

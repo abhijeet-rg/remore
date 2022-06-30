@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Logo from "@unix-interiors/assets/logo_with_name.png";
+import emoji from "@unix-interiors/assets/happy-emoji.png";
 
 import FeedBackForm from "./FeedBackForm";
 import { FeedBackHeading, FeedbackWrapper } from "./App.style";
@@ -31,7 +32,7 @@ function App() {
         {!endStatus && <FeedBackForm setEndStatus={setEndStatus} />}
         {endStatus && (
           <>
-            <ThankYou />
+            <ThankYou emoji={emoji} />
             <FeedBackHeading endStatus={endStatus}>
               <h2>FeedBack is Submitted Successfully</h2>
               <p>

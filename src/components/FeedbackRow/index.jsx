@@ -1,8 +1,9 @@
-import { useState } from "react";
+import React from "react";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import StarBorderRoundedIcon from "@mui/icons-material/StarBorderRounded";
 
 import {
+  ErrorMessage,
   FeedbackRowWrapper,
   RatingWrapper,
   StarContainer,
@@ -32,7 +33,7 @@ const ratingConfig = [
   },
 ];
 
-function FeedbackRow({ name, heading, data, setData }) {
+function FeedbackRow({ name, heading, data, setData, showError }) {
   function clickHandle(value) {
     setData((obj) => ({
       ...obj,
@@ -59,7 +60,10 @@ function FeedbackRow({ name, heading, data, setData }) {
             return (
               <StarContainer key={i} onClick={() => clickHandle(i + 1)}>
                 <StarRoundedIcon
-                  sx={{ fontSize: size, fill: "#faaf00" }}
+                  sx={{
+                    fontSize: size,
+                    fill: "#faaf00",
+                  }}
                   focusable={true}
                 />
                 <h6>{text}</h6>
@@ -77,6 +81,7 @@ function FeedbackRow({ name, heading, data, setData }) {
             );
         })}
       </RatingWrapper>
+      {showError && <ErrorMessage>Please select the Star</ErrorMessage>}
     </FeedbackRowWrapper>
   );
 }

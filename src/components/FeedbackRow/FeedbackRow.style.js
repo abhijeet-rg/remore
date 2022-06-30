@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 export const FeedbackRowWrapper = styled.div`
   margin: 20px 0;
+  position: relative;
+
   h3 {
     color: #37474f;
     font-family: "Open Sans", sans-serif;
@@ -39,4 +41,14 @@ export const StarContainer = styled.div`
     font-weight: 500;
     font-size: 11px;
   }
+`;
+
+export const ErrorMessage = styled.span`
+  position: absolute;
+  bottom: -24px;
+  color: #d32f2f;
+  font-size: 12px;
+  transform: translate(-50%, -50%);
+  font-weight: 500;
+  letter-spacing: 0.5px;
 `;
