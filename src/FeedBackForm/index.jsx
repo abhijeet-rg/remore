@@ -116,7 +116,7 @@ function FeedBackForm({ setEndStatus }) {
       <section>
         <TextInput
           name="name"
-          label={"FullName"}
+          label={"FullName test"}
           value={formData.name}
           handleChange={handleChange}
           showError={formError.nameError}
